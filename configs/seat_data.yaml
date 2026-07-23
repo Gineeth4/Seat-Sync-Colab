@@ -1,0 +1,28 @@
+# Smart Seat Sync — YOLOv8 dataset descriptor (Ultralytics format)
+# ---------------------------------------------------------------
+# `path` is the dataset root. `train`/`val`/`test` are IMAGE folders relative to
+# it; Ultralytics finds labels by swapping `/images/` -> `/labels/` in each path,
+# so the on-disk layout MUST be:
+#
+#   datasets/seat_sync/
+#     images/train/*.jpg        labels/train/*.txt
+#     images/val/*.jpg          labels/val/*.txt
+#     images/test/*.jpg         labels/test/*.txt
+#
+# Each label .txt line is:  <class_id> <cx> <cy> <w> <h>   (all normalised 0-1).
+#
+# Edit `path` to an ABSOLUTE Windows path OUTSIDE OneDrive (OneDrive sync can lock
+# image files mid-read and corrupt a training epoch). Forward slashes are fine on
+# Windows for Ultralytics.
+
+path: C:/Users/dhruv/datasets/seat_sync
+train: images/train
+val: images/val
+test: images/test
+
+# Class order is contractual: the FastAPI backend and React dashboard index by
+# these integer ids. Do not reorder without migrating downstream consumers.
+names:
+  0: empty_seat
+  1: occupied_seat
+  2: person

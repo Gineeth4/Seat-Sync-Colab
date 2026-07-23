@@ -1,0 +1,41 @@
+# Smart Seat Sync — local CV pipeline dependency pin
+# Target: Windows 11 / Python 3.10 / NVIDIA RTX 2050 (4GB VRAM) / CUDA (cu126 wheels)
+#
+# INTERPRETER: this machine has BOTH Python 3.14 (bare `python`) and Python 3.10.
+# The ML stack only has CUDA wheels for 3.10, so pin every command to it:
+#     py -3.10 -m pip ...        (NOT `python`, NOT `pip`)
+#
+# IMPORTANT (install order matters on Windows):
+#   1. Install the CUDA build of torch FIRST from the PyTorch index, otherwise
+#      `pip install ultralytics` pulls the CPU-only wheel (torch==*+cpu) as a
+#      transitive dep and CUDA is silently unavailable.
+#
+#   py -3.10 -m pip install --upgrade pip
+#   py -3.10 -m pip install --index-url https://download.pytorch.org/whl/cu126 torch==2.13.0 torchvision==0.28.0
+#   py -3.10 -m pip install -r requirements.txt
+#
+# If you already ran `pip install -r requirements.txt` and ended up with a
+# *+cpu build, the second line above OVERWRITES it in place — just rerun it.
+#
+# The torch/torchvision lines below are intentionally commented so this file can
+# be fed to `pip install -r` AFTER the CUDA wheels are already present without
+# pip trying to "fix" them back to CPU wheels from PyPI.
+
+# --- Deep learning / detection ---
+# torch==2.13.0           # install from cu126 index (see header)
+# torchvision==0.28.0     # install from cu126 index (see header)
+ultralytics==8.2.103
+
+# --- Numerics / vision I/O ---
+numpy==1.26.4
+opencv-python==4.10.0.84
+pillow==10.4.0
+pyyaml==6.0.2
+
+# --- Runtime telemetry (VRAM / host RAM auditing) ---
+psutil==6.0.0
+
+# --- Backend + dashboard bridge (used in later milestones; pinned now for reproducibility) ---
+fastapi==0.111.1
+uvicorn[standard]==0.30.3
+websockets==12.0

@@ -1,0 +1,13 @@
+{
+  "name": "synthetic_3x2",
+  "coord_space": "normalized_xywh",
+  "_comment": "Fixed seat regions as fractions of frame size (resolution-independent). Centres match the 3x2 grid produced by gen_synthetic_dataset.py so this layout aligns with the synthetic test frames. For a real venue, replace these with the actual seat ROIs (a one-time calibration per camera).",
+  "seats": [
+    { "id": "A1", "cx": 0.220, "cy": 0.290, "w": 0.174, "h": 0.260 },
+    { "id": "A2", "cx": 0.500, "cy": 0.290, "w": 0.174, "h": 0.260 },
+    { "id": "A3", "cx": 0.780, "cy": 0.290, "w": 0.174, "h": 0.260 },
+    { "id": "B1", "cx": 0.220, "cy": 0.710, "w": 0.174, "h": 0.260 },
+    { "id": "B2", "cx": 0.500, "cy": 0.710, "w": 0.174, "h": 0.260 },
+    { "id": "B3", "cx": 0.780, "cy": 0.710, "w": 0.174, "h": 0.260 }
+  ]
+}
