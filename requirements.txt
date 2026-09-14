@@ -24,7 +24,7 @@
 # --- Deep learning / detection ---
 # torch==2.13.0           # install from cu126 index (see header)
 # torchvision==0.28.0     # install from cu126 index (see header)
-ultralytics==8.2.103
+ultralytics>=8.4.0   # 8.4+ required for YOLO26 support
 
 # --- Numerics / vision I/O ---
 numpy==1.26.4

@@ -1,6 +1,6 @@
 """
 Smart Seat Sync — Milestone 2
-Local YOLOv8 Training Harness (RTX 2050 / 4GB VRAM)
+Local YOLO26 Training Harness (RTX 2050 / 4GB VRAM)
 ================================================================================
 
 What this is
@@ -28,7 +28,8 @@ Why these numbers (4GB budget arithmetic)
 Training memory ≈ model params + optimizer state + *activations*, and activations
 scale with (batch x imgsz^2). On ~3.4 GB of usable VRAM (after Windows desktop +
 driver overhead on a 4GB card), the empirically safe envelope for the nano model
-with AMP is:
+with AMP was (measured on YOLOv8n; carried forward as a starting point for
+YOLO26n pending re-measurement — see est_peak_vram_mb note below):
 
     yolov8n, imgsz=640, batch=4, amp=True   -> ~2.6-3.0 GB peak   (default)
     yolov8n, imgsz=512, batch=4, amp=True   -> ~1.9-2.3 GB peak   ("safe")
@@ -90,26 +91,31 @@ class TrainProfile:
 # so 8 workers on a 6-core laptop mostly buys context-switch thrash + RAM, not
 # throughput, and the image decode is not the bottleneck at these batch sizes.
 #
-# VRAM estimates below are EMPIRICALLY ANCHORED, not guessed. A measured run on
-# this RTX 2050 (yolov8n, imgsz=512, batch=4, amp) peaked at ~401 MB — the nano
-# model is far lighter than a naive 4GB-card safety budget assumes. Activation
-# memory scales ~linearly with batch and with imgsz^2, so from the 401 MB anchor:
+# VRAM estimates below were EMPIRICALLY ANCHORED on YOLOv8n, not guessed. A
+# measured run on this RTX 2050 (yolov8n, imgsz=512, batch=4, amp) peaked at
+# ~401 MB. Activation memory scales ~linearly with batch and with imgsz^2, so
+# from the 401 MB anchor:
 #     imgsz=512,b4  -> ~0.40 GB (measured)     imgsz=640,b8  -> ~1.3 GB
 #     imgsz=640,b16 -> ~2.6 GB                 imgsz=640,b32 -> ~4.9 GB (won't fit)
 # Estimates carry a ~1.4x head-margin over the linear projection for augmentation
 # spikes and the cuDNN workspace, so the preflight gate stays honest without being
 # the 6x-too-conservative numbers this file originally shipped with.
+#
+# NOTE: these numbers have not been re-measured on YOLO26n, which has a
+# different architecture (NMS-free head, no DFL). They're kept as a starting
+# safety budget; watch the first run's [monitor] peak/reserved lines and tighten
+# est_peak_vram_mb if the real numbers land meaningfully lower or higher.
 PROFILES: dict[str, TrainProfile] = {
     "safe": TrainProfile(
-        name="safe", model="yolov8n.pt", imgsz=512, batch=4, workers=2,
+        name="safe", model="yolo26n.pt", imgsz=512, batch=4, workers=2,
         epochs=100, patience=25, amp=True, cache="disk", est_peak_vram_mb=600,
     ),
     "balanced": TrainProfile(
-        name="balanced", model="yolov8n.pt", imgsz=640, batch=8, workers=2,
+        name="balanced", model="yolo26n.pt", imgsz=640, batch=8, workers=2,
         epochs=100, patience=25, amp=True, cache="disk", est_peak_vram_mb=1500,
     ),
     "max": TrainProfile(
-        name="max", model="yolov8n.pt", imgsz=640, batch=16, workers=3,
+        name="max", model="yolo26n.pt", imgsz=640, batch=16, workers=3,
         epochs=100, patience=25, amp=True, cache="disk", est_peak_vram_mb=2800,
     ),
 }
@@ -270,7 +276,7 @@ def train(profile: TrainProfile, data_yaml: Path, resume: bool,
         print("\n[dry-run] Preflight passed; skipping training as requested.")
         return 0
 
-    # CWD guard: Ultralytics downloads pretrained weights (yolov8n.pt) and writes
+    # CWD guard: Ultralytics downloads pretrained weights (yolo26n.pt) and writes
     # assorted temp files into the *current working directory*. If we were launched
     # from a OneDrive-synced folder, those writes are silently dropped/locked and
     # the download fails with a curl write error. Anchor CWD to the project root
@@ -279,10 +285,10 @@ def train(profile: TrainProfile, data_yaml: Path, resume: bool,
     os.chdir(_PROJECT_ROOT)
 
     # Keep pretrained weights in a dedicated, writable subdir instead of scattering
-    # yolov8n.pt at the repo root.
+    # yolo26n.pt at the repo root.
     weights_dir = _PROJECT_ROOT / "weights"
     weights_dir.mkdir(exist_ok=True)
-    # Absolute path -> Ultralytics recognises the basename (yolov8n.pt) as a known
+    # Absolute path -> Ultralytics recognises the basename (yolo26n.pt) as a known
     # asset and downloads it straight into weights/, caching it for later runs.
     model_arg = str(weights_dir / profile.model)
 
@@ -334,7 +340,7 @@ def train(profile: TrainProfile, data_yaml: Path, resume: bool,
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Smart Seat Sync — YOLOv8 training harness")
+    parser = argparse.ArgumentParser(description="Smart Seat Sync — YOLO26 training harness")
     parser.add_argument("--profile", choices=sorted(PROFILES), default="balanced",
                         help="VRAM profile (default: balanced).")
     parser.add_argument("--data", type=Path,
@@ -346,7 +352,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="Override the profile's batch size (use with care on 4GB).")
     parser.add_argument("--imgsz", type=int, default=None,
                         help="Override the profile's image size.")
-    parser.add_argument("--name", default="seat_sync_yolov8n",
+    parser.add_argument("--name", default="seat_sync_yolo26n",
                         help="Run name under runs/.")
     parser.add_argument("--resume", action="store_true",
                         help="Resume an interrupted run of the same name.")

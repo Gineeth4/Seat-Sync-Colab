@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import DetectPanel from './DetectPanel.jsx'
+import SeatGrid from './SeatGrid.jsx'
 
 // The service is local and fixed. Override via Vite env if you ever move it.
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
@@ -118,37 +119,13 @@ export default function App() {
 
       {mode === 'detect' && (
         <main className="stage-wrap detect-wrap">
-          <DetectPanel apiBase={API_BASE} />
+          <DetectPanel apiBase={API_BASE} seats={seats} />
         </main>
       )}
 
       {mode === 'live' && (<>
       <main className="stage-wrap">
-        <div className="stage">
-          {seats.length === 0 && (
-            <div className="empty">Waiting for seat layout from {API_BASE}/seats…</div>
-          )}
-          {seats.map((s) => {
-            const st = occ[s.id]
-            const isOcc = !!st?.occupied
-            return (
-              <div
-                key={s.id}
-                className={`seat ${isOcc ? 'occ' : 'empty-seat'}`}
-                style={{
-                  left: `${(s.cx - s.w / 2) * 100}%`,
-                  top: `${(s.cy - s.h / 2) * 100}%`,
-                  width: `${s.w * 100}%`,
-                  height: `${s.h * 100}%`,
-                }}
-              >
-                <span className="seat-id">{s.id}</span>
-                <span className="seat-state">{isOcc ? 'OCCUPIED' : 'empty'}</span>
-                {st && st.iou > 0 && <span className="seat-iou">IoU {st.iou.toFixed(2)}</span>}
-              </div>
-            )
-          })}
-        </div>
+        <SeatGrid seats={seats} occ={occ} emptyMessage={`Waiting for seat layout from ${API_BASE}/seats…`} />
       </main>
 
       <footer className="footbar">

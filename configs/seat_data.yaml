@@ -1,4 +1,4 @@
-# Smart Seat Sync — YOLOv8 dataset descriptor (Ultralytics format)
+# Smart Seat Sync — YOLO26 dataset descriptor (Ultralytics format)
 # ---------------------------------------------------------------
 # `path` is the dataset root. `train`/`val`/`test` are IMAGE folders relative to
 # it; Ultralytics finds labels by swapping `/images/` -> `/labels/` in each path,

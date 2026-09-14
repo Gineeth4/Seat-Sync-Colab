@@ -40,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="Model weights (default: your trained seat model).")
     ap.add_argument("--conf", type=float, default=0.25, help="Confidence threshold.")
     ap.add_argument("--imgsz", type=int, default=640, help="Inference image size.")
+    ap.add_argument("--classes", type=str, default=None,
+                    help="Filter by class IDs (e.g. '0,56,60' for person, chair, table). Default: all classes in model.")
     ap.add_argument("--show", action="store_true",
                     help="Open the annotated result in the default image viewer.")
     args = ap.parse_args(argv)
@@ -63,8 +65,13 @@ def main(argv: list[str] | None = None) -> int:
     print("-" * 68)
 
     model = YOLO(str(args.weights))
+    predict_kwargs = {}
+    if args.classes and args.classes.lower() != "all":
+        predict_kwargs["classes"] = [int(x) for x in args.classes.split(",") if x.strip().isdigit()]
+
     result = model.predict(source=str(args.image), imgsz=args.imgsz, conf=args.conf,
-                           device=device, half=torch.cuda.is_available(), verbose=False)[0]
+                           device=device, half=torch.cuda.is_available(), verbose=False,
+                           **predict_kwargs)[0]
 
     names = model.names  # id -> class name (works for seat model OR COCO)
     boxes = result.boxes

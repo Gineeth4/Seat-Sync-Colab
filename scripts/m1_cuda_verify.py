@@ -7,7 +7,7 @@ Purpose
 -------
 Deterministically prove that this specific machine (Windows 11 / RTX 2050 / 4GB
 VRAM) can run the full training + inference stack BEFORE we spend an hour on a
-YOLOv8 training run that dies at epoch 3 with a CUDA OOM.
+YOLO26 training run that dies at epoch 3 with a CUDA OOM.
 
 Design intent
 -------------

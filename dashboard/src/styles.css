@@ -92,6 +92,25 @@ body {
 .dz-title { font-size: 16px; font-weight: 600; margin-top: 8px; }
 .dz-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
+.mode-row { display: flex; gap: 6px; }
+
+.timeline {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+}
+.timeline-thumb {
+  position: relative; flex: 0 0 auto; padding: 0; width: 96px; height: 64px;
+  border-radius: 8px; border: 2px solid var(--line); background: var(--panel);
+  cursor: pointer; overflow: hidden;
+}
+.timeline-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.timeline-thumb:hover { border-color: var(--accent); }
+.timeline-thumb.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.25); }
+.timeline-badge {
+  position: absolute; bottom: 3px; right: 4px;
+  padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;
+  background: rgba(46, 160, 67, 0.85); color: #fff;
+}
+
 .conf-row { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
 .conf-row b { color: var(--text); font-variant-numeric: tabular-nums; }
 .conf-row input[type="range"] { flex: 1; min-width: 140px; accent-color: var(--accent); }
@@ -109,7 +128,15 @@ body {
   background: #0d131a; border: 1px solid var(--line);
 }
 .pill.person { background: rgba(46, 160, 67, 0.18); border-color: var(--occ); color: #56d364; }
+.pill.chair { background: rgba(88, 166, 255, 0.18); border-color: var(--accent); color: #58a6ff; }
+.pill.table { background: rgba(210, 153, 34, 0.18); border-color: #d29922; color: #e3b341; }
 .pill.muted { color: var(--muted); }
+.pill.occ { background: rgba(46, 160, 67, 0.18); border-color: var(--occ); color: #56d364; }
+
+.seats-section { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.seats-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.seats-section-head h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--text); }
+.seat-grid-card .stage { width: min(420px, 100%); margin: 0 auto; }
 .annotated {
   width: 100%; border-radius: 12px; border: 1px solid var(--line);
   display: block; background: var(--panel);

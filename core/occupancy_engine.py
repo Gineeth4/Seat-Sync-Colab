@@ -170,8 +170,13 @@ class OccupancyEngine:
         return states
 
     # -- inference -----------------------------------------------------------
-    def infer(self, frame) -> OccupancyResult:
-        """Run detection + assignment on one frame (path str/Path or BGR ndarray)."""
+    def infer(self, frame, conf: float | None = None) -> OccupancyResult:
+        """Run detection + assignment on one frame (path str/Path or BGR ndarray).
+
+        conf overrides the engine's configured gate for this call only (used by
+        the /occupancy endpoints so the dashboard's confidence slider applies to
+        seat detection too, not just the general /detect model).
+        """
         if self.model is None:
             raise RuntimeError("engine built with _skip_model=True cannot run inference")
 
@@ -180,7 +185,8 @@ class OccupancyEngine:
             if cuda:
                 self.torch.cuda.reset_peak_memory_stats()
             t0 = time.perf_counter()
-            result = self.model.predict(source=frame, imgsz=self.imgsz, conf=self.conf,
+            result = self.model.predict(source=frame, imgsz=self.imgsz,
+                                       conf=conf if conf is not None else self.conf,
                                        device=self.device, half=self.use_half, verbose=False)[0]
             if cuda:
                 self.torch.cuda.synchronize()
